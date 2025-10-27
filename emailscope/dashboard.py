@@ -18,7 +18,7 @@ from .database import EmailScopeDB
 class EmailScopeDashboard:
     """Web dashboard for EmailScope."""
     
-    def __init__(self):
+    def __init__(self, config=None):
         """Initialize the dashboard."""
         # Set template folder to the correct path
         import os
@@ -26,18 +26,32 @@ class EmailScopeDashboard:
         self.app = Flask(__name__, template_folder=template_dir)
         self.app.config['SECRET_KEY'] = 'emailscope-dashboard-2024'
         
-        # Initialize EmailScope components
-        # Initialize advanced crawler with optimized settings
+        # Use provided config or default settings
+        if config is None:
+            config = {
+                'delay': 0.5,
+                'timeout': 10,
+                'bypass_robots': True,
+                'max_depth': 2,
+                'max_pages': 30,
+                'rate_limit': 0.8,
+                'verification_timeout': 1,
+                'mock_dns': False,
+                'max_workers': 5,
+                'request_retries': 2,
+            }
+        
+        # Initialize EmailScope components with config
         self.crawler = WebCrawler(
-            delay=0.5,           # Faster requests
-            timeout=10,          # 10 second timeout
-            bypass_robots=True,   # Bypass robots.txt
-            max_depth=2,         # Crawl 2 levels deep
-            max_pages=30,        # Max 30 pages per domain
-            rate_limit=0.8       # 0.8 seconds between requests
+            delay=config.get('delay', 0.5),
+            timeout=config.get('timeout', 10),
+            bypass_robots=config.get('bypass_robots', True),
+            max_depth=config.get('max_depth', 2),
+            max_pages=config.get('max_pages', 30),
+            rate_limit=config.get('rate_limit', 0.8)
         )
         self.extractor = EmailExtractor()
-        self.verifier = EmailVerifier()
+        self.verifier = EmailVerifier(timeout=config.get('verification_timeout', 1), mock_dns=config.get('mock_dns', False))
         self.db = EmailScopeDB()  # Database for persistence
         
         # Store results in memory (for real-time display)

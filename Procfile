@@ -1,1 +1,1 @@
-web: python render_config.py
+web: gunicorn -c gunicorn.conf.py render_config:application

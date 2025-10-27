@@ -19,6 +19,7 @@ idna==3.4
 
 # Process management
 gunicorn==21.2.0
+waitress==2.1.2
 
 # Standard library modules (no additional installation needed):
 # - smtplib (built-in)

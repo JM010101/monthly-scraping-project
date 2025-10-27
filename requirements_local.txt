@@ -1,24 +1,21 @@
-# EmailScope Dependencies - Render Optimized
+# EmailScope Dependencies - Local Development (with lxml)
+# Use this for local development with better HTML parsing performance
+# For cloud deployment, use requirements.txt (without lxml)
+
 # Core web scraping and parsing
-requests==2.31.0
-beautifulsoup4==4.12.2
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0  # Fast HTML parser (requires compilation)
 
 # DNS resolution for email verification
-dnspython==2.4.2
+dnspython>=2.4.0
 
 # Web dashboard
-flask==2.3.3
-werkzeug==2.3.7
+flask>=2.3.0
 
-# Additional packages for better cloud compatibility
-urllib3==2.0.7
-certifi==2023.7.22
-charset-normalizer==3.3.2
-idna==3.4
-
-# Process management
-gunicorn==21.2.0
-waitress==2.1.2
+# Process management (optional)
+gunicorn>=21.2.0
+waitress>=2.1.2
 
 # Standard library modules (no additional installation needed):
 # - smtplib (built-in)

@@ -2,7 +2,6 @@
 # Core web scraping and parsing
 requests==2.31.0
 beautifulsoup4==4.12.2
-lxml==4.9.3
 
 # DNS resolution for email verification
 dnspython==2.4.2

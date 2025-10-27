@@ -231,6 +231,66 @@
             background: linear-gradient(90deg, #dc3545 0%, #e83e8c 100%);
         }
         
+        .progress-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Enhanced Progress Bar Styles */
+        .progress-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+        }
+        
+        .progress-container .progress {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-container .progress-bar {
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.6s ease;
+        }
+        
+        .progress-info {
+            background: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-info i {
+            color: var(--primary-color);
+        }
+        
+        /* Step-specific progress bar colors */
+        .progress-bar.step-crawling {
+            background: linear-gradient(90deg, #17a2b8 0%, #20c997 100%);
+        }
+        
+        .progress-bar.step-extracting {
+            background: linear-gradient(90deg, #ffc107 0%, #fd7e14 100%);
+        }
+        
+        .progress-bar.step-verifying {
+            background: linear-gradient(90deg, #6f42c1 0%, #e83e8c 100%);
+        }
+        
+        .progress-bar.step-complete {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        }
+        
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -386,6 +446,50 @@
             opacity: 0.7;
         }
         
+        /* Disabled component styles */
+        .disabled {
+            pointer-events: none;
+            opacity: 0.6 !important;
+            cursor: not-allowed !important;
+        }
+        
+        .scraping-active .form-control:disabled,
+        .scraping-active .btn:disabled,
+        .scraping-active .form-select:disabled {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .scraping-active .form-control:disabled::placeholder {
+            color: #adb5bd;
+        }
+        
+        /* Visual indicator for scraping state - only on form controls */
+        .scraping-active .scrape-form {
+            position: relative;
+        }
+        
+        .scraping-active .scrape-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: var(--border-radius);
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* Keep results table and logs fully interactive during scraping */
+        .scraping-active .results-table .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+        }
+        
         .table-responsive {
             max-height: 600px;
             overflow-y: auto;
@@ -480,6 +584,65 @@
             </div>
         </div>
 
+        <!-- Scraping Progress -->
+        <div class="results-table mb-3" id="progress-container" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>Scraping Progress
+                </h5>
+                <small class="text-muted" id="progress-status">Ready to start</small>
+            </div>
+            <div class="progress-container">
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         id="main-progress-bar" 
+                         role="progressbar" 
+                         style="width: 0%"
+                         aria-valuenow="0" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        <span class="progress-text">Ready to start...</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="progress-info">
+                            <small class="text-muted">
+                                <i class="fas fa-globe me-1"></i>
+                                <span id="current-step-text">Step 1: Crawling</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="progress-info">
+                            <small class="text-muted">
+                                <i class="fas fa-percentage me-1"></i>
+                                <span id="progress-percentage">0%</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <div class="progress-info">
+                            <small class="text-muted">
+                                <i class="fas fa-envelope me-1"></i>
+                                <span id="email-progress">0 emails processed</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="progress-info">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                <span id="elapsed-time">00:00</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Real-time Log -->
         <div class="results-table mb-3">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -503,9 +666,6 @@
                     <small class="text-muted" id="email-count">0 emails found</small>
                 </div>
                 <div class="d-flex gap-2">
-                    <button id="refresh-btn" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-sync-alt me-1"></i>Refresh
-                    </button>
                     <button id="clean-btn" class="btn btn-outline-warning btn-sm">
                         <i class="fas fa-broom me-1"></i>Clean Data
                     </button>
@@ -582,6 +742,8 @@
                 this.logs = [];
                 this.stats = {};
                 this.notifications = [];
+                this.scrapingStartTime = null;
+                this.progressInterval = null;
                 this.keyboardShortcuts = {
                     'Enter': () => this.startScraping(),
                     'Escape': () => this.stopScraping(),
@@ -594,10 +756,14 @@
             }
             
             init() {
+                console.log('Initializing dashboard...');
+                console.log('DOM ready state:', document.readyState);
+                console.log('no-results element exists:', !!document.getElementById('no-results'));
+                
                 this.bindEvents();
                 this.updateStatus();
-                this.loadResults();
-                this.loadLogs();
+                this.clearLogOnReload();
+                this.refreshDataOnReload();
                 this.setupScrollIndicator();
                 this.setupKeyboardShortcuts();
                 this.setupNotifications();
@@ -611,7 +777,6 @@
                 document.getElementById('stop-btn').addEventListener('click', () => this.stopScraping());
                 document.getElementById('clear-btn').addEventListener('click', () => this.clearResults());
                 document.getElementById('export-btn').addEventListener('click', () => this.exportCSV());
-                document.getElementById('refresh-btn').addEventListener('click', () => this.refreshResults());
                 document.getElementById('clean-btn').addEventListener('click', () => this.cleanLowConfidenceData());
                 document.getElementById('filter-status').addEventListener('change', () => this.filterResults());
                 document.getElementById('filter-domain').addEventListener('change', () => this.filterResults());
@@ -745,6 +910,7 @@
                 }
                 
                 this.isScraping = true;
+                console.log('isScraping set to true, calling updateUI');
                 this.updateUI();
                 this.showLoadingOverlay();
                 
@@ -800,6 +966,7 @@
                     if (response.ok) {
                         this.isScraping = false;
                         this.updateUI();
+                        this.enableInteractiveComponents();
                         this._addLogMessage('[STOP] Scraping stopped by user');
                         this.showNotification('Scraping stopped', 'info');
                     }
@@ -820,7 +987,15 @@
                             console.log('Scraping completed/stopped, stopping polling');
                             this.isScraping = false;
                             this.updateUI();
+                            this.enableInteractiveComponents();
                             this.loadResults();
+                            
+                            // If status is error, reset backend status after a delay
+                            if (data.status === 'error') {
+                                setTimeout(() => {
+                                    this.resetBackendStatus();
+                                }, 2000);
+                            }
                             return;
                         }
                         
@@ -832,12 +1007,14 @@
                             console.log('Status reset to idle, assuming completion');
                             this.isScraping = false;
                             this.updateUI();
+                            this.enableInteractiveComponents();
                             this.loadResults();
                         }
                     } catch (error) {
                         console.error('Error polling status:', error);
                         this.isScraping = false;
                         this.updateUI();
+                        this.enableInteractiveComponents();
                     }
                 };
                 
@@ -857,28 +1034,36 @@
                 }
             }
             
-            async refreshResults() {
+            async refreshDataOnReload() {
+                // Refresh all data when page loads/reloads
                 try {
-                    // Show loading state
-                    const refreshBtn = document.getElementById('refresh-btn');
-                    const originalText = refreshBtn.innerHTML;
-                    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
-                    refreshBtn.disabled = true;
-                    
-                    // Reload all results from database
                     await this.loadResults();
-                    
-                    // Reset button
-                    refreshBtn.innerHTML = originalText;
-                    refreshBtn.disabled = false;
-                    
-                    console.log('Results refreshed from database');
+                    await this.loadLogs();
+                    this.updateStatus();
+                    console.log('Data refreshed on page reload');
                 } catch (error) {
-                    console.error('Error refreshing results:', error);
-                    // Reset button even on error
-                    const refreshBtn = document.getElementById('refresh-btn');
-                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh';
-                    refreshBtn.disabled = false;
+                    console.error('Error refreshing data on reload:', error);
+                }
+            }
+            
+            async resetBackendStatus() {
+                // Reset backend status to idle after error
+                try {
+                    console.log('Resetting backend status to idle');
+                    const response = await fetch('/api/reset-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        console.log('Backend status reset successfully');
+                    } else {
+                        console.error('Failed to reset backend status');
+                    }
+                } catch (error) {
+                    console.error('Error resetting backend status:', error);
                 }
             }
             
@@ -952,6 +1137,23 @@
                 } catch (error) {
                     console.error('Error loading logs:', error);
                 }
+            }
+            
+            clearLogOnReload() {
+                // Clear the log display when page loads/reloads
+                const logContainer = document.getElementById('scraping-log');
+                const logCount = document.getElementById('log-count');
+                
+                if (logContainer) {
+                    logContainer.innerHTML = '<div class="text-muted">Waiting for scraping to start...</div>';
+                }
+                
+                if (logCount) {
+                    logCount.textContent = '0 messages';
+                }
+                
+                // Clear the logs array
+                this.logs = [];
             }
             
             updateLogDisplay(logs) {
@@ -1048,6 +1250,30 @@
                 const noResults = document.getElementById('no-results');
                 const emailCount = document.getElementById('email-count');
                 
+                // Add null checks to prevent errors
+                if (!tbody || !emailCount) {
+                    console.error('Required DOM elements not found:', {
+                        tbody: !!tbody,
+                        noResults: !!noResults,
+                        emailCount: !!emailCount
+                    });
+                    return;
+                }
+                
+                // Only create no-results element if we actually have no results
+                if (!noResults && this.results.length === 0) {
+                    console.log('Creating no-results element for empty results');
+                    const noResultsRow = document.createElement('tr');
+                    noResultsRow.id = 'no-results';
+                    noResultsRow.innerHTML = `
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-3"></i>
+                            <br>No emails discovered yet. Enter a domain and click "Start Scraping" to begin.
+                        </td>
+                    `;
+                    tbody.appendChild(noResultsRow);
+                }
+                
                 // Update email count
                 const totalEmails = this.results.length;
                 const verifiedEmails = this.results.filter(r => r.status === 'verified').length;
@@ -1059,13 +1285,24 @@
                     emailCount.textContent = '0 emails found';
                 }
                 
+                console.log('Results check - length:', this.results.length, 'totalEmails:', totalEmails);
+                
                 if (this.results.length === 0) {
-                    noResults.style.display = '';
-                    document.getElementById('scroll-indicator').classList.remove('show');
+                    const noResultsElement = document.getElementById('no-results');
+                    if (noResultsElement) {
+                        noResultsElement.style.display = '';
+                    }
+                    const scrollIndicator = document.getElementById('scroll-indicator');
+                    if (scrollIndicator) {
+                        scrollIndicator.classList.remove('show');
+                    }
                     return;
                 }
                 
-                noResults.style.display = 'none';
+                const noResultsElement = document.getElementById('no-results');
+                if (noResultsElement) {
+                    noResultsElement.style.display = 'none';
+                }
                 
                 const filteredResults = this.getFilteredResults();
                 
@@ -1126,11 +1363,25 @@
                 const statusBadge = document.getElementById('status-badge');
                 const resultsCount = document.getElementById('results-count');
                 
+                console.log('updateStatus called, isScraping:', this.isScraping);
+                
+                // Add null checks to prevent errors
+                if (!statusBadge || !resultsCount) {
+                    console.error('Required DOM elements not found in updateStatus:', {
+                        statusBadge: !!statusBadge,
+                        resultsCount: !!resultsCount
+                    });
+                    return;
+                }
+                
                 if (this.isScraping) {
+                    console.log('Setting status to scraping, showing progress bar');
                     statusBadge.textContent = 'Processing emails...';
                     statusBadge.className = 'badge bg-warning';
                     this.showProgressBar();
+                    this.updateProgressBar(); // Start progress updates
                 } else {
+                    console.log('Setting status to ready, hiding progress bar');
                     statusBadge.textContent = 'Ready';
                     statusBadge.className = 'badge bg-success';
                     this.hideProgressBar();
@@ -1140,35 +1391,137 @@
             }
             
             showProgressBar() {
-                let progressBar = document.getElementById('progress-bar');
-                if (!progressBar) {
-                    progressBar = document.createElement('div');
-                    progressBar.id = 'progress-bar';
-                    progressBar.className = 'progress mb-3';
-                    progressBar.innerHTML = `
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" style="width: 0%"></div>
-                    `;
-                    document.getElementById('scraping-controls').appendChild(progressBar);
+                console.log('showProgressBar called');
+                const progressContainer = document.getElementById('progress-container');
+                console.log('Progress container found:', progressContainer);
+                if (progressContainer) {
+                    progressContainer.style.display = 'block';
+                    console.log('Progress bar shown');
+                    this.scrapingStartTime = new Date();
+                    this.startProgressTimer();
+                } else {
+                    console.error('Progress container not found!');
                 }
-                
-                // Animate progress bar
-                let progress = 0;
-                const interval = setInterval(() => {
-                    if (!this.isScraping) {
-                        clearInterval(interval);
-                        return;
-                    }
-                    progress += Math.random() * 10;
-                    if (progress > 90) progress = 90;
-                    progressBar.querySelector('.progress-bar').style.width = progress + '%';
-                }, 1000);
             }
             
             hideProgressBar() {
-                const progressBar = document.getElementById('progress-bar');
-                if (progressBar) {
-                    progressBar.remove();
+                const progressContainer = document.getElementById('progress-container');
+                if (progressContainer) {
+                    progressContainer.style.display = 'none';
+                    this.stopProgressTimer();
+                }
+            }
+            
+            startProgressTimer() {
+                this.progressInterval = setInterval(() => {
+                    this.updateElapsedTime();
+                }, 1000);
+            }
+            
+            stopProgressTimer() {
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = null;
+                }
+            }
+            
+            updateElapsedTime() {
+                if (!this.scrapingStartTime) return;
+                
+                const elapsed = new Date() - this.scrapingStartTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                const elapsedTimeElement = document.getElementById('elapsed-time');
+                if (elapsedTimeElement) {
+                    elapsedTimeElement.textContent = timeString;
+                }
+            }
+            
+            async updateProgressBar() {
+                console.log('updateProgressBar called, isScraping:', this.isScraping);
+                if (!this.isScraping) return;
+                
+                try {
+                    console.log('Fetching progress from /api/progress');
+                    const response = await fetch('/api/progress');
+                    const data = await response.json();
+                    console.log('Progress data received:', data);
+                    
+                    if (data.progress) {
+                        const progress = data.progress;
+                        console.log('Updating progress display with:', progress);
+                        this.updateProgressDisplay(progress);
+                    }
+                } catch (error) {
+                    console.error('Error fetching progress:', error);
+                }
+                
+                // Continue updating if still scraping
+                if (this.isScraping) {
+                    setTimeout(() => this.updateProgressBar(), 1000);
+                }
+            }
+            
+            updateProgressDisplay(progress) {
+                const progressBar = document.getElementById('main-progress-bar');
+                const progressText = progressBar.querySelector('.progress-text');
+                const progressStatus = document.getElementById('progress-status');
+                const currentStepText = document.getElementById('current-step-text');
+                const progressPercentage = document.getElementById('progress-percentage');
+                const emailProgress = document.getElementById('email-progress');
+                
+                if (!progressBar) return;
+                
+                // Update progress bar width
+                progressBar.style.width = progress.current_progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress.current_progress);
+                
+                // Update progress text
+                if (progress.current_step > 0 && progress.current_step <= progress.step_names.length) {
+                    const stepName = progress.step_names[progress.current_step - 1];
+                    let text = `${stepName} (${progress.current_progress}%)`;
+                    
+                    if (progress.current_step === 3 && progress.total_emails > 0) {
+                        text += ` - ${progress.processed_emails}/${progress.total_emails} emails`;
+                    }
+                    
+                    progressText.textContent = text;
+                }
+                
+                // Update step-specific styling
+                progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+                if (progress.current_step === 1) {
+                    progressBar.classList.add('step-crawling');
+                    progressStatus.textContent = 'Crawling website pages...';
+                } else if (progress.current_step === 2) {
+                    progressBar.classList.add('step-extracting');
+                    progressStatus.textContent = 'Extracting email addresses...';
+                } else if (progress.current_step === 3) {
+                    progressBar.classList.add('step-verifying');
+                    progressStatus.textContent = 'Verifying email addresses...';
+                } else if (progress.current_step === 4) {
+                    progressBar.classList.add('step-complete');
+                    progressStatus.textContent = 'Scraping completed!';
+                }
+                
+                // Update detailed progress info
+                if (currentStepText) {
+                    const stepName = progress.step_names[progress.current_step - 1] || 'Ready';
+                    currentStepText.textContent = `Step ${progress.current_step}: ${stepName}`;
+                }
+                
+                if (progressPercentage) {
+                    progressPercentage.textContent = `${progress.current_progress}%`;
+                }
+                
+                if (emailProgress) {
+                    if (progress.total_emails > 0) {
+                        emailProgress.textContent = `${progress.processed_emails}/${progress.total_emails} emails processed`;
+                    } else {
+                        emailProgress.textContent = '0 emails processed';
+                    }
                 }
             }
             
@@ -1215,10 +1568,76 @@
             
             updateDomainFilter() {
                 const domainFilter = document.getElementById('filter-domain');
+                
+                // Add null check to prevent errors
+                if (!domainFilter) {
+                    console.error('Domain filter element not found');
+                    return;
+                }
+                
                 const domains = [...new Set(this.results.map(r => r.domain))];
                 
                 domainFilter.innerHTML = '<option value="">All Domains</option>' +
                     domains.map(domain => `<option value="${domain}">${domain}</option>`).join('');
+            }
+            
+            disableInteractiveComponents() {
+                // Disable only interactive control elements during scraping
+                // Keep viewing components (results table, logs, progress) enabled
+                const elementsToDisable = [
+                    'domain-input',      // Domain input field
+                    'clear-btn',         // Clear results button
+                    'export-btn',        // Export CSV button
+                    'clean-btn',         // Clean data button
+                    'filter-status',    // Status filter dropdown
+                    'filter-domain',    // Domain filter dropdown
+                    'search-input'      // Search input field
+                ];
+                
+                elementsToDisable.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.disabled = true;
+                        element.classList.add('disabled');
+                        element.style.opacity = '0.6';
+                        element.style.cursor = 'not-allowed';
+                    }
+                });
+                
+                // Add visual indicator that scraping is active
+                document.body.classList.add('scraping-active');
+                
+                // Keep these components enabled for viewing/interaction:
+                // - Results table (users can scroll and view results)
+                // - Log display (users can scroll and read logs)
+                // - Progress bar (users can see progress)
+                // - Stop button (users can still stop scraping)
+            }
+            
+            enableInteractiveComponents() {
+                // Re-enable interactive control elements after scraping
+                const elementsToEnable = [
+                    'domain-input',      // Domain input field
+                    'clear-btn',         // Clear results button
+                    'export-btn',        // Export CSV button
+                    'clean-btn',         // Clean data button
+                    'filter-status',    // Status filter dropdown
+                    'filter-domain',    // Domain filter dropdown
+                    'search-input'      // Search input field
+                ];
+                
+                elementsToEnable.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.disabled = false;
+                        element.classList.remove('disabled');
+                        element.style.opacity = '1';
+                        element.style.cursor = 'default';
+                    }
+                });
+                
+                // Remove visual indicator
+                document.body.classList.remove('scraping-active');
             }
             
             updateUI() {
@@ -1232,12 +1651,17 @@
                     btnText.textContent = 'Scraping...';
                     scrapeBtn.style.display = 'none';
                     stopBtn.style.display = 'block';
+                    this.disableInteractiveComponents();
                 } else {
                     scrapeBtn.classList.remove('scraping-active');
                     btnText.textContent = 'Start Scraping';
                     scrapeBtn.style.display = 'block';
                     stopBtn.style.display = 'none';
+                    this.enableInteractiveComponents();
                 }
+                
+                // Update status to show/hide progress bar
+                this.updateStatus();
             }
         }
         

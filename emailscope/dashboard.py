@@ -48,6 +48,16 @@ class EmailScopeDashboard:
         self.current_domain_id = None  # Current domain being scraped
         self.current_session_id = None  # Current scraping session
         
+        # Progress tracking for loading bar
+        self.scraping_progress = {
+            'current_step': 0,
+            'total_steps': 4,
+            'step_names': ['Crawling', 'Extracting', 'Verifying', 'Complete'],
+            'current_progress': 0,
+            'total_emails': 0,
+            'processed_emails': 0
+        }
+        
         self._setup_routes()
     
     def _setup_routes(self):
@@ -85,6 +95,14 @@ class EmailScopeDashboard:
             return jsonify({
                 'status': self.scraping_status,
                 'results_count': len(self.results)
+            })
+        
+        @self.app.route('/api/progress')
+        def get_progress():
+            """Get scraping progress information."""
+            return jsonify({
+                'progress': self.scraping_progress,
+                'status': self.scraping_status
             })
         
         @self.app.route('/api/results')
@@ -252,6 +270,16 @@ class EmailScopeDashboard:
             else:
                 return jsonify({'error': 'No scraping in progress'}), 400
         
+        @self.app.route('/api/reset-status', methods=['POST'])
+        def reset_status():
+            """Reset scraping status to idle."""
+            self.scraping_status = "idle"
+            self.stop_scraping = False
+            self.current_domain_id = None
+            self.current_session_id = None
+            print("Status manually reset to idle")
+            return jsonify({'message': 'Status reset to idle'})
+        
         @self.app.route('/api/domains')
         def get_domains():
             """Get all domains with statistics."""
@@ -309,6 +337,16 @@ class EmailScopeDashboard:
             self.scraping_log = []  # Clear previous logs
             self.stop_scraping = False  # Reset stop flag
             
+            # Reset progress tracking
+            self.scraping_progress = {
+                'current_step': 0,
+                'total_steps': 4,
+                'step_names': ['Crawling', 'Extracting', 'Verifying', 'Complete'],
+                'current_progress': 0,
+                'total_emails': 0,
+                'processed_emails': 0
+            }
+            
             # Add domain to database
             self.current_domain_id = self.db.add_domain(domain, "scraping")
             self.current_session_id = self.db.start_scraping_session(self.current_domain_id)
@@ -323,9 +361,11 @@ class EmailScopeDashboard:
             if not domain.startswith(('http://', 'https://')):
                 domain = f"https://{domain}"
             
-            # Crawl website
+            # Step 1: Crawl website
             print(f"Crawling website: {domain}")
             self._add_log(f"Crawling website: {domain}")
+            self.scraping_progress['current_step'] = 1
+            self.scraping_progress['current_progress'] = 10
             urls = self.crawler.crawl_company_website(domain)
             
             if not urls:
@@ -337,9 +377,11 @@ class EmailScopeDashboard:
             print(f"Found {len(urls)} URLs to process")
             self._add_log(f"SUCCESS: Found {len(urls)} URLs to process")
             
-            # Extract emails from all pages concurrently
+            # Step 2: Extract emails from all pages concurrently
             all_emails = set()
             self._add_log(f"Extracting emails from {len(urls)} pages concurrently...")
+            self.scraping_progress['current_step'] = 2
+            self.scraping_progress['current_progress'] = 30
             
             # Use ThreadPoolExecutor for concurrent page processing
             max_page_workers = min(5, len(urls))  # Limit concurrent page workers
@@ -375,9 +417,13 @@ class EmailScopeDashboard:
                 self.scraping_status = "error"
                 return
             
-            # Verify emails concurrently using ThreadPoolExecutor
+            # Step 3: Verify emails concurrently using ThreadPoolExecutor
             print(f"Verifying {len(all_emails)} emails concurrently...")
             self._add_log(f"[SEARCH] Verifying {len(all_emails)} emails concurrently...")
+            self.scraping_progress['current_step'] = 3
+            self.scraping_progress['current_progress'] = 50
+            self.scraping_progress['total_emails'] = len(all_emails)
+            self.scraping_progress['processed_emails'] = 0
             
             # Use ThreadPoolExecutor for concurrent email verification
             max_workers = min(10, len(all_emails))  # Limit concurrent workers
@@ -404,6 +450,10 @@ class EmailScopeDashboard:
                     email = future_to_email[future]
                     completed_count += 1
                     
+                    # Update progress
+                    self.scraping_progress['processed_emails'] = completed_count
+                    self.scraping_progress['current_progress'] = 50 + int((completed_count / len(all_emails)) * 40)
+                    
                     try:
                         result = future.result()
                         self.results.append(result)
@@ -417,6 +467,10 @@ class EmailScopeDashboard:
             
             print(f"Scraping completed for {domain}. Found {len(all_emails)} emails.")
             self._add_log(f"[COMPLETE] Scraping completed! Found {len(all_emails)} emails.")
+            
+            # Step 4: Complete
+            self.scraping_progress['current_step'] = 4
+            self.scraping_progress['current_progress'] = 100
             
             # Update database with completion
             verified_count = len([r for r in self.results if r.get('is_valid')])
@@ -453,6 +507,28 @@ class EmailScopeDashboard:
             print(f"Error scraping {domain}: {str(e)}")
             self._add_log(f"[ERROR] Error: {str(e)}")
             self.scraping_status = "error"
+            
+            # Update database with error status
+            if self.current_domain_id:
+                self.db.update_domain_status(self.current_domain_id, "error")
+                self.db.update_scraping_session(
+                    self.current_session_id,
+                    status="error",
+                    error_message=str(e),
+                    completed_at=datetime.now().isoformat()
+                )
+            
+            # Reset to idle after a delay to allow frontend to detect error
+            import threading
+            def reset_status_after_error():
+                import time
+                time.sleep(3)  # Wait 3 seconds to ensure frontend detects error
+                self.scraping_status = "idle"
+                print("Status reset to idle after error")
+            
+            reset_thread = threading.Thread(target=reset_status_after_error)
+            reset_thread.daemon = True
+            reset_thread.start()
     
     def _add_log(self, message: str):
         """Add a log message with timestamp."""

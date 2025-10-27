@@ -32,9 +32,10 @@ def main():
         print("Press Ctrl+C to stop")
         print("-" * 40)
         
-        dashboard.run(host='127.0.0.1', port=5000, debug=False)
+        dashboard.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
         return True
-        
+
+
     except ImportError as e:
         print(f"Import Error: {e}")
         print("Please install requirements: pip install -r requirements.txt")

@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailScope Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .dashboard-header .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        
+        .scrape-form {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+        
+        .scrape-form:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-warning {
+            border: 2px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .btn-outline-warning:hover {
+            background: var(--warning-color);
+            transform: translateY(-1px);
+        }
+        
+        .results-table {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .results-table:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody tr {
+            transition: var(--transition);
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+        }
+        
+        .table tbody td {
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .badge.bg-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        }
+        
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+        }
+        
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%) !important;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        
+        .progress-bar {
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        
+        .progress-bar.bg-success {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .progress-bar.bg-warning {
+            background: linear-gradient(90deg, #ffc107 0%, #fd7e14 100%);
+        }
+        
+        .progress-bar.bg-danger {
+            background: linear-gradient(90deg, #dc3545 0%, #e83e8c 100%);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-spinner {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3rem;
+        }
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9998;
+            min-width: 300px;
+        }
+        
+        .toast {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .toast-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+        }
+        
+        .toast-body {
+            padding: 1rem;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .search-box .form-control {
+            padding-left: 2.5rem;
+        }
+        
+        .search-box .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        
+        .results-table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .results-table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .results-table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .results-table-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .results-table-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scroll-indicator.show {
+            opacity: 1;
+        }
+        
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+        }
+        
+        .confidence-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .confidence-high { background: #28a745; }
+        .confidence-medium { background: #ffc107; }
+        .confidence-low { background: #dc3545; }
+        
+        .loading-spinner {
+            display: none;
+        }
+        
+        .scraping-active .loading-spinner {
+            display: inline-block;
+        }
+        
+        .scraping-active .scrape-btn {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .email-cell {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .domain-cell {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .timestamp-cell {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="header-title mb-0">
+                        <i class="fas fa-envelope-open-text me-3"></i>
+                        EmailScope Dashboard
+                    </h1>
+                    <p class="header-subtitle mb-0 mt-2">Discover and verify company emails from public websites</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <div class="me-3">
+                            <small class="text-light opacity-75">Status:</small>
+                            <span id="status-badge" class="badge bg-light text-dark">Ready</span>
+                        </div>
+                        <div>
+                            <small class="text-light opacity-75">Results:</small>
+                            <span id="results-count" class="badge bg-light text-dark">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="container">
+        <!-- Scrape Form -->
+        <div class="scrape-form">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label for="domain-input" class="form-label">
+                            <i class="fas fa-globe me-2"></i>Domain to Scrape
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="domain-input" 
+                               placeholder="Enter domain (e.g., example.com)" required>
+                        <div class="form-text">Enter a company domain to discover their email addresses</div>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button id="scrape-btn" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-search me-2"></i>
+                        <span class="btn-text">Start Scraping</span>
+                        <div class="loading-spinner">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button id="stop-btn" class="btn btn-danger btn-lg w-100 ms-2" style="display: none;">
+                        <i class="fas fa-stop me-2"></i>
+                        <span class="btn-text">Stop Scraping</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <button id="clear-btn" class="btn btn-outline-secondary">
+                        <i class="fas fa-trash me-2"></i>Clear Results
+                    </button>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button id="export-btn" class="btn btn-outline-success">
+                        <i class="fas fa-download me-2"></i>Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Log -->
+        <div class="results-table mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-terminal me-2"></i>Scraping Log
+                </h5>
+                <small class="text-muted" id="log-count">0 messages</small>
+            </div>
+            <div id="scraping-log" class="bg-dark text-light p-3 rounded" style="height: 200px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                <div class="text-muted">Waiting for scraping to start...</div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="results-table">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>Discovered Emails
+                    </h5>
+                    <small class="text-muted" id="email-count">0 emails found</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <button id="refresh-btn" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                    <button id="clean-btn" class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-broom me-1"></i>Clean Data
+                    </button>
+                    <select id="filter-status" class="form-select form-select-sm">
+                        <option value="">All Status</option>
+                        <option value="verified">Verified</option>
+                        <option value="unverified">Unverified</option>
+                    </select>
+                    <select id="filter-domain" class="form-select form-select-sm">
+                        <option value="">All Domains</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Search and Filter Section -->
+            <div class="search-box mb-3">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control" id="search-input" placeholder="Search emails, domains, or reasons...">
+            </div>
+            
+            
+            <div class="results-table-container">
+                <table class="table table-hover mb-0" id="results-table">
+                    <thead class="table-dark sticky-top">
+                        <tr>
+                            <th>Domain</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Confidence</th>
+                            <th>Reason</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-tbody">
+                        <tr id="no-results">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-3"></i>
+                                <br>No emails discovered yet. Enter a domain and click "Start Scraping" to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="scroll-indicator" id="scroll-indicator">
+                    <i class="fas fa-arrow-down me-1"></i>Scroll to see more
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3">
+                <h5>Processing...</h5>
+                <p class="text-muted">Please wait while we process your request</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-toast" id="notification-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        class EmailScopeDashboard {
+            constructor() {
+                this.results = [];
+                this.isScraping = false;
+                this.logs = [];
+                this.stats = {};
+                this.notifications = [];
+                this.keyboardShortcuts = {
+                    'Enter': () => this.startScraping(),
+                    'Escape': () => this.stopScraping(),
+                    'F5': () => this.refreshResults(),
+                    'Ctrl+r': () => this.refreshResults(),
+                    'Ctrl+s': () => this.exportCSV(),
+                    'Ctrl+c': () => this.clearResults()
+                };
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.updateStatus();
+                this.loadResults();
+                this.loadLogs();
+                this.setupScrollIndicator();
+                this.setupKeyboardShortcuts();
+                this.setupNotifications();
+                this.setupAutoSave();
+                this.setupDataValidation();
+                this.setupSearch();
+            }
+            
+            bindEvents() {
+                document.getElementById('scrape-btn').addEventListener('click', () => this.startScraping());
+                document.getElementById('stop-btn').addEventListener('click', () => this.stopScraping());
+                document.getElementById('clear-btn').addEventListener('click', () => this.clearResults());
+                document.getElementById('export-btn').addEventListener('click', () => this.exportCSV());
+                document.getElementById('refresh-btn').addEventListener('click', () => this.refreshResults());
+                document.getElementById('clean-btn').addEventListener('click', () => this.cleanLowConfidenceData());
+                document.getElementById('filter-status').addEventListener('change', () => this.filterResults());
+                document.getElementById('filter-domain').addEventListener('change', () => this.filterResults());
+                
+                // Enter key support
+                document.getElementById('domain-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.startScraping();
+                    }
+                });
+            }
+            
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    const key = e.key;
+                    const ctrlKey = e.ctrlKey || e.metaKey;
+                    const shortcut = ctrlKey ? `Ctrl+${key.toLowerCase()}` : key;
+                    
+                    if (this.keyboardShortcuts[shortcut]) {
+                        e.preventDefault();
+                        this.keyboardShortcuts[shortcut]();
+                    }
+                });
+            }
+            
+            setupNotifications() {
+                // Create notification container if it doesn't exist
+                if (!document.getElementById('notification-container')) {
+                    const container = document.createElement('div');
+                    container.id = 'notification-container';
+                    container.className = 'position-fixed top-0 end-0 p-3';
+                    container.style.zIndex = '9999';
+                    document.body.appendChild(container);
+                }
+            }
+            
+            showNotification(message, type = 'info', duration = 3000) {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type} alert-dismissible fade show`;
+                notification.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Auto-remove after duration
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, duration);
+            }
+            
+            setupAutoSave() {
+                // Auto-save form data to localStorage
+                const domainInput = document.getElementById('domain-input');
+                if (domainInput) {
+                    // Load saved domain
+                    const savedDomain = localStorage.getItem('emailscope_domain');
+                    if (savedDomain) {
+                        domainInput.value = savedDomain;
+                    }
+                    
+                    // Save on input change
+                    domainInput.addEventListener('input', (e) => {
+                        localStorage.setItem('emailscope_domain', e.target.value);
+                    });
+                }
+            }
+            
+            setupDataValidation() {
+                const domainInput = document.getElementById('domain-input');
+                if (domainInput) {
+                    domainInput.addEventListener('input', (e) => {
+                        this.validateDomain(e.target.value);
+                    });
+                }
+            }
+            
+            validateDomain(domain) {
+                const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?(\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?)*$/;
+                const isValid = domainRegex.test(domain);
+                
+                const input = document.getElementById('domain-input');
+                if (domain && !isValid) {
+                    input.classList.add('is-invalid');
+                    this.showNotification('Invalid domain format', 'warning');
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+                
+                return isValid;
+            }
+            
+            
+            setupScrollIndicator() {
+                const container = document.querySelector('.results-table-container');
+                const indicator = document.getElementById('scroll-indicator');
+                
+                if (!container || !indicator) return;
+                
+                container.addEventListener('scroll', () => {
+                    const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
+                    const hasScrollableContent = container.scrollHeight > container.clientHeight;
+                    
+                    if (hasScrollableContent && !isAtBottom) {
+                        indicator.classList.add('show');
+                    } else {
+                        indicator.classList.remove('show');
+                    }
+                });
+            }
+            
+            async startScraping() {
+                const domain = document.getElementById('domain-input').value.trim();
+                if (!domain) {
+                    this.showNotification('Please enter a domain', 'warning');
+                    return;
+                }
+                
+                if (!this.validateDomain(domain)) {
+                    this.showNotification('Invalid domain format', 'error');
+                    return;
+                }
+                
+                if (this.isScraping) {
+                    this.showNotification('Scraping is already in progress', 'warning');
+                    return;
+                }
+                
+                this.isScraping = true;
+                this.updateUI();
+                this.showLoadingOverlay();
+                
+                try {
+                    const response = await fetch('/api/scrape', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ domain: domain })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        if (data.status === 'started') {
+                            this.showNotification('Scraping started successfully', 'success');
+                            this.hideLoadingOverlay();
+                            this.pollStatus();
+                        } else {
+                            this.showNotification('Error: ' + data.error, 'error');
+                            this.isScraping = false;
+                            this.updateUI();
+                            this.hideLoadingOverlay();
+                        }
+                    } else {
+                        this.showNotification('Error: ' + data.error, 'error');
+                        this.isScraping = false;
+                        this.updateUI();
+                        this.hideLoadingOverlay();
+                    }
+                } catch (error) {
+                    this.showNotification('Error starting scraping: ' + error.message, 'error');
+                    this.isScraping = false;
+                    this.updateUI();
+                    this.hideLoadingOverlay();
+                }
+            }
+            
+            async stopScraping() {
+                if (!this.isScraping) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/stop', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        this.isScraping = false;
+                        this.updateUI();
+                        this._addLogMessage('[STOP] Scraping stopped by user');
+                        this.showNotification('Scraping stopped', 'info');
+                    }
+                } catch (error) {
+                    this.showNotification('Error stopping scraping: ' + error.message, 'error');
+                }
+            }
+            
+            async pollStatus() {
+                const poll = async () => {
+                    try {
+                        const response = await fetch('/api/status');
+                        const data = await response.json();
+                        
+                        console.log('Status check:', data.status, 'Results count:', data.results_count);
+                        
+                        if (data.status === 'completed' || data.status === 'error' || data.status === 'stopped') {
+                            console.log('Scraping completed/stopped, stopping polling');
+                            this.isScraping = false;
+                            this.updateUI();
+                            this.loadResults();
+                            return;
+                        }
+                        
+                        if (data.status === 'scraping') {
+                            this.loadLogs(); // Load logs during scraping
+                            setTimeout(poll, 1000); // Poll every 1 second for real-time updates
+                        } else if (data.status === 'idle' && this.isScraping) {
+                            // Handle case where status was reset to idle while we were scraping
+                            console.log('Status reset to idle, assuming completion');
+                            this.isScraping = false;
+                            this.updateUI();
+                            this.loadResults();
+                        }
+                    } catch (error) {
+                        console.error('Error polling status:', error);
+                        this.isScraping = false;
+                        this.updateUI();
+                    }
+                };
+                
+                poll();
+            }
+            
+            async loadResults() {
+                try {
+                    const response = await fetch('/api/results');
+                    const data = await response.json();
+                    this.results = data;
+                    this.updateTable();
+                    this.updateStatus();
+                    this.updateDomainFilter();
+                } catch (error) {
+                    console.error('Error loading results:', error);
+                }
+            }
+            
+            async refreshResults() {
+                try {
+                    // Show loading state
+                    const refreshBtn = document.getElementById('refresh-btn');
+                    const originalText = refreshBtn.innerHTML;
+                    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
+                    refreshBtn.disabled = true;
+                    
+                    // Reload all results from database
+                    await this.loadResults();
+                    
+                    // Reset button
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.disabled = false;
+                    
+                    console.log('Results refreshed from database');
+                } catch (error) {
+                    console.error('Error refreshing results:', error);
+                    // Reset button even on error
+                    const refreshBtn = document.getElementById('refresh-btn');
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh';
+                    refreshBtn.disabled = false;
+                }
+            }
+            
+            async cleanLowConfidenceData() {
+                try {
+                    // Count low confidence emails first
+                    const lowConfidenceEmails = this.results.filter(email => email.confidence < 30);
+                    const count = lowConfidenceEmails.length;
+                    
+                    if (count === 0) {
+                        this.showNotification('No emails with confidence less than 30% found.', 'info');
+                        return;
+                    }
+                    
+                    // Confirm deletion with enhanced dialog
+                    const confirmed = confirm(
+                        `Found ${count} emails with confidence less than 30%.\n\n` +
+                        `This will permanently delete these emails from the database.\n\n` +
+                        `Are you sure you want to proceed?`
+                    );
+                    
+                    if (!confirmed) {
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const cleanBtn = document.getElementById('clean-btn');
+                    const originalText = cleanBtn.innerHTML;
+                    cleanBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Cleaning...';
+                    cleanBtn.disabled = true;
+                    
+                    // Call clean API
+                    const response = await fetch('/api/clean-low-confidence', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        this.showNotification(`Successfully cleaned ${result.removed_count} emails with low confidence.`, 'success');
+                        
+                        // Refresh the display
+                        await this.loadResults();
+                    } else {
+                        const error = await response.json();
+                        this.showNotification('Error cleaning data: ' + error.error, 'error');
+                    }
+                    
+                    // Reset button
+                    cleanBtn.innerHTML = originalText;
+                    cleanBtn.disabled = false;
+                    
+                } catch (error) {
+                    console.error('Error cleaning low confidence data:', error);
+                    this.showNotification('Error cleaning data: ' + error.message, 'error');
+                    
+                    // Reset button even on error
+                    const cleanBtn = document.getElementById('clean-btn');
+                    cleanBtn.innerHTML = '<i class="fas fa-broom me-1"></i>Clean Data';
+                    cleanBtn.disabled = false;
+                }
+            }
+            
+            async loadLogs() {
+                try {
+                    const response = await fetch('/api/logs');
+                    const data = await response.json();
+                    this.updateLogDisplay(data);
+                } catch (error) {
+                    console.error('Error loading logs:', error);
+                }
+            }
+            
+            updateLogDisplay(logs) {
+                const logContainer = document.getElementById('scraping-log');
+                const logCount = document.getElementById('log-count');
+                
+                if (logs.length === 0) {
+                    logContainer.innerHTML = '<div class="text-muted">Waiting for scraping to start...</div>';
+                    logCount.textContent = '0 messages';
+                    return;
+                }
+                
+                logCount.textContent = `${logs.length} messages`;
+                
+                const logHTML = logs.map(log => 
+                    `<div class="mb-1">
+                        <span class="text-info">[${log.timestamp}]</span> 
+                        <span class="text-light">${log.message}</span>
+                    </div>`
+                ).join('');
+                
+                logContainer.innerHTML = logHTML;
+                
+                // Auto-scroll to bottom
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+            
+            async clearResults() {
+                if (!confirm('Are you sure you want to clear all results?')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/clear', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        this.results = [];
+                        this.updateTable();
+                        this.updateStatus();
+                        this.updateDomainFilter();
+                        this.loadLogs(); // Clear logs display
+                    }
+                } catch (error) {
+                    alert('Error clearing results: ' + error.message);
+                }
+            }
+            
+            
+            exportCSV() {
+                if (this.results.length === 0) {
+                    this.showNotification('No results to export', 'warning');
+                    return;
+                }
+                
+                try {
+                    const csv = this.generateCSV();
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `emailscope-results-${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    this.showNotification(`Exported ${this.results.length} results to CSV`, 'success');
+                } catch (error) {
+                    this.showNotification('Error exporting CSV: ' + error.message, 'error');
+                }
+            }
+            
+            generateCSV() {
+                const headers = ['Domain', 'Email', 'Status', 'Confidence', 'Reason', 'Timestamp'];
+                const rows = this.results.map(result => [
+                    result.domain,
+                    result.email,
+                    result.status,
+                    result.confidence,
+                    result.reason,
+                    result.timestamp
+                ]);
+                
+                return [headers, ...rows].map(row => 
+                    row.map(field => `"${field}"`).join(',')
+                ).join('\n');
+            }
+            
+            updateTable() {
+                const tbody = document.getElementById('results-tbody');
+                const noResults = document.getElementById('no-results');
+                const emailCount = document.getElementById('email-count');
+                
+                // Update email count
+                const totalEmails = this.results.length;
+                const verifiedEmails = this.results.filter(r => r.status === 'verified').length;
+                
+                // Update email count
+                if (totalEmails > 0) {
+                    emailCount.textContent = `${totalEmails} emails found (${verifiedEmails} verified)`;
+                } else {
+                    emailCount.textContent = '0 emails found';
+                }
+                
+                if (this.results.length === 0) {
+                    noResults.style.display = '';
+                    document.getElementById('scroll-indicator').classList.remove('show');
+                    return;
+                }
+                
+                noResults.style.display = 'none';
+                
+                const filteredResults = this.getFilteredResults();
+                
+                tbody.innerHTML = filteredResults.map(result => `
+                    <tr>
+                        <td class="domain-cell">${result.domain}</td>
+                        <td class="email-cell">${result.email}</td>
+                        <td>
+                            <span class="badge ${result.status === 'verified' ? 'bg-success' : 'bg-warning'} status-badge">
+                                ${result.status}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="confidence-bar me-2" style="width: 60px;">
+                                    <div class="confidence-fill ${this.getConfidenceClass(result.confidence)}" 
+                                         style="width: ${result.confidence}%"></div>
+                                </div>
+                                <small>${result.confidence}%</small>
+                            </div>
+                        </td>
+                        <td><small class="text-muted">${result.reason}</small></td>
+                        <td class="timestamp-cell">${new Date(result.timestamp).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+                
+                // Auto-scroll to show new results if scraping is active
+                if (this.isScraping) {
+                    const container = document.querySelector('.results-table-container');
+                    if (container) {
+                        container.scrollTop = container.scrollHeight;
+                    }
+                }
+            }
+            
+            getFilteredResults() {
+                const statusFilter = document.getElementById('filter-status').value;
+                const domainFilter = document.getElementById('filter-domain').value;
+                
+                return this.results.filter(result => {
+                    if (statusFilter && result.status !== statusFilter) return false;
+                    if (domainFilter && result.domain !== domainFilter) return false;
+                    return true;
+                });
+            }
+            
+            filterResults() {
+                this.updateTable();
+            }
+            
+            getConfidenceClass(confidence) {
+                if (confidence >= 70) return 'confidence-high';
+                if (confidence >= 40) return 'confidence-medium';
+                return 'confidence-low';
+            }
+            
+            updateStatus() {
+                const statusBadge = document.getElementById('status-badge');
+                const resultsCount = document.getElementById('results-count');
+                
+                if (this.isScraping) {
+                    statusBadge.textContent = 'Processing emails...';
+                    statusBadge.className = 'badge bg-warning';
+                    this.showProgressBar();
+                } else {
+                    statusBadge.textContent = 'Ready';
+                    statusBadge.className = 'badge bg-success';
+                    this.hideProgressBar();
+                }
+                
+                resultsCount.textContent = this.results.length;
+            }
+            
+            showProgressBar() {
+                let progressBar = document.getElementById('progress-bar');
+                if (!progressBar) {
+                    progressBar = document.createElement('div');
+                    progressBar.id = 'progress-bar';
+                    progressBar.className = 'progress mb-3';
+                    progressBar.innerHTML = `
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    `;
+                    document.getElementById('scraping-controls').appendChild(progressBar);
+                }
+                
+                // Animate progress bar
+                let progress = 0;
+                const interval = setInterval(() => {
+                    if (!this.isScraping) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    progress += Math.random() * 10;
+                    if (progress > 90) progress = 90;
+                    progressBar.querySelector('.progress-bar').style.width = progress + '%';
+                }, 1000);
+            }
+            
+            hideProgressBar() {
+                const progressBar = document.getElementById('progress-bar');
+                if (progressBar) {
+                    progressBar.remove();
+                }
+            }
+            
+            searchResults(query) {
+                if (!query) {
+                    this.updateTable();
+                    return;
+                }
+                
+                const filtered = this.results.filter(r => 
+                    r.email.toLowerCase().includes(query.toLowerCase()) ||
+                    r.domain.toLowerCase().includes(query.toLowerCase()) ||
+                    r.reason.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                this.updateTable(filtered);
+            }
+            
+            setupSearch() {
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        this.searchResults(e.target.value);
+                    });
+                }
+                
+            }
+            
+            
+            showLoadingOverlay() {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) {
+                    overlay.classList.add('show');
+                }
+            }
+            
+            hideLoadingOverlay() {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) {
+                    overlay.classList.remove('show');
+                }
+            }
+            
+            
+            updateDomainFilter() {
+                const domainFilter = document.getElementById('filter-domain');
+                const domains = [...new Set(this.results.map(r => r.domain))];
+                
+                domainFilter.innerHTML = '<option value="">All Domains</option>' +
+                    domains.map(domain => `<option value="${domain}">${domain}</option>`).join('');
+            }
+            
+            updateUI() {
+                const scrapeBtn = document.getElementById('scrape-btn');
+                const stopBtn = document.getElementById('stop-btn');
+                const btnText = scrapeBtn.querySelector('.btn-text');
+                const loadingSpinner = scrapeBtn.querySelector('.loading-spinner');
+                
+                if (this.isScraping) {
+                    scrapeBtn.classList.add('scraping-active');
+                    btnText.textContent = 'Scraping...';
+                    scrapeBtn.style.display = 'none';
+                    stopBtn.style.display = 'block';
+                } else {
+                    scrapeBtn.classList.remove('scraping-active');
+                    btnText.textContent = 'Start Scraping';
+                    scrapeBtn.style.display = 'block';
+                    stopBtn.style.display = 'none';
+                }
+            }
+        }
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new EmailScopeDashboard();
+        });
+    </script>
+</body>
+</html>

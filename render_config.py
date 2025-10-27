@@ -61,7 +61,7 @@ def get_free_render_config():
             # BALANCED settings for free tier - fast enough to find emails, slow enough to avoid timeout
             'delay': 2.0,           # Moderate delay (2s vs 5s)
             'timeout': 20,           # Reasonable timeout (20s vs 15s)
-            'bypass_robots': False, # Always respect robots.txt
+            'bypass_robots': True,  # Bypass robots.txt for free tier (needed for results)
             'max_depth': 1,         # Only 1 level deep
             'max_pages': 5,         # More pages (5 vs 3)
             'rate_limit': 2.5,      # Moderate rate (2.5s vs 5s)

@@ -50,6 +50,11 @@ class EmailScopeDashboard:
             max_pages=config.get('max_pages', 30),
             rate_limit=config.get('rate_limit', 0.8)
         )
+        
+        # Store free-tier specific settings
+        self.max_emails_per_page = config.get('max_emails_per_page', 50)
+        self.max_total_emails = config.get('max_total_emails', 100)
+        self.enable_timeout_protection = config.get('enable_timeout_protection', False)
         self.extractor = EmailExtractor()
         self.verifier = EmailVerifier(timeout=config.get('verification_timeout', 1), mock_dns=config.get('mock_dns', False))
         self.db = EmailScopeDB()  # Database for persistence
@@ -345,7 +350,10 @@ class EmailScopeDashboard:
         
     
     def _scrape_domain(self, domain: str):
-        """Scrape a domain in background thread."""
+        """Scrape a domain in background thread with free-tier timeout protection."""
+        import time
+        start_time = time.time()
+        
         try:
             print(f"Starting scraping for domain: {domain}")
             self.scraping_log = []  # Clear previous logs
@@ -360,6 +368,12 @@ class EmailScopeDashboard:
                 'total_emails': 0,
                 'processed_emails': 0
             }
+            
+            # Free-tier timeout protection
+            if self.enable_timeout_protection:
+                self._add_log(f"[WARNING] FREE TIER: Process will timeout after 30 seconds")
+                self._add_log(f"[WARNING] Using ultra-conservative settings for free tier")
+                self._add_log(f"[INFO] Max pages: {self.crawler.max_pages}, Delay: {self.crawler.delay}s")
             
             # Add domain to database
             self.current_domain_id = self.db.add_domain(domain, "scraping")
@@ -380,6 +394,15 @@ class EmailScopeDashboard:
             self._add_log(f"Crawling website: {domain}")
             self.scraping_progress['current_step'] = 1
             self.scraping_progress['current_progress'] = 10
+            
+            # Check timeout before crawling
+            if self.enable_timeout_protection:
+                elapsed = time.time() - start_time
+                if elapsed > 25:  # Stop at 25 seconds to avoid timeout
+                    self._add_log(f"[TIMEOUT] Stopping early to avoid 30s timeout (elapsed: {elapsed:.1f}s)")
+                    self.scraping_status = "completed"
+                    return
+            
             urls = self.crawler.crawl_company_website(domain)
             
             if not urls:

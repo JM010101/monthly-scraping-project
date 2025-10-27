@@ -58,25 +58,25 @@ def get_free_render_config():
     if is_render:
         print("🌐 FREE Render deployment detected")
         return {
-            # ULTRA-CONSERVATIVE settings for free tier
-            'delay': 5.0,           # Very slow requests (5s delay)
-            'timeout': 15,          # Short timeout (15s vs 45s)
+            # BALANCED settings for free tier - fast enough to find emails, slow enough to avoid timeout
+            'delay': 2.0,           # Moderate delay (2s vs 5s)
+            'timeout': 20,           # Reasonable timeout (20s vs 15s)
             'bypass_robots': False, # Always respect robots.txt
             'max_depth': 1,         # Only 1 level deep
-            'max_pages': 3,         # Only 3 pages max (vs 8)
-            'rate_limit': 5.0,      # Very slow rate (5s vs 3s)
+            'max_pages': 5,         # More pages (5 vs 3)
+            'rate_limit': 2.5,      # Moderate rate (2.5s vs 5s)
             
             # Email verification settings
-            'verification_timeout': 3,  # Short DNS timeout (3s vs 8s)
+            'verification_timeout': 5,  # Moderate DNS timeout (5s vs 3s)
             'mock_dns': False,          # Real DNS checks
             
             # Process management
-            'max_workers': 1,       # Single worker (vs 2)
-            'request_retries': 2,   # Fewer retries (2 vs 5)
+            'max_workers': 1,       # Single worker
+            'request_retries': 3,   # More retries (3 vs 2)
             
             # Free tier specific settings
-            'max_emails_per_page': 5,    # Limit emails per page
-            'max_total_emails': 10,     # Limit total emails
+            'max_emails_per_page': 10,   # More emails per page (10 vs 5)
+            'max_total_emails': 20,      # More total emails (20 vs 10)
             'enable_timeout_protection': True,  # Enable timeout protection
         }
     else:

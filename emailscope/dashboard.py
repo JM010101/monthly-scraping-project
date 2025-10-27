@@ -372,8 +372,8 @@ class EmailScopeDashboard:
             # Free-tier timeout protection
             if self.enable_timeout_protection:
                 self._add_log(f"[WARNING] FREE TIER: Process will timeout after 30 seconds")
-                self._add_log(f"[WARNING] Using ultra-conservative settings for free tier")
-                self._add_log(f"[INFO] Max pages: {self.crawler.max_pages}, Delay: {self.crawler.delay}s")
+                self._add_log(f"[INFO] BALANCED settings: Max pages: {self.crawler.max_pages}, Delay: {self.crawler.delay}s")
+                self._add_log(f"[INFO] Timeout protection enabled - will stop at 25 seconds")
             
             # Add domain to database
             self.current_domain_id = self.db.add_domain(domain, "scraping")
@@ -411,14 +411,22 @@ class EmailScopeDashboard:
                 self.scraping_status = "error"
                 return
             
-            print(f"Found {len(urls)} URLs to process")
-            self._add_log(f"SUCCESS: Found {len(urls)} URLs to process")
+            print(f"Found {len(urls)} URLs to scrape")
+            self._add_log(f"Found {len(urls)} URLs to scrape: {urls[:3]}{'...' if len(urls) > 3 else ''}")
             
             # Step 2: Extract emails from all pages concurrently
             all_emails = set()
             self._add_log(f"Extracting emails from {len(urls)} pages concurrently...")
             self.scraping_progress['current_step'] = 2
             self.scraping_progress['current_progress'] = 30
+            
+            # Check timeout before email extraction
+            if self.enable_timeout_protection:
+                elapsed = time.time() - start_time
+                if elapsed > 20:  # Stop at 20 seconds for email extraction
+                    self._add_log(f"[TIMEOUT] Stopping email extraction early (elapsed: {elapsed:.1f}s)")
+                    self.scraping_status = "completed"
+                    return
             
             # Use ThreadPoolExecutor for concurrent page processing
             max_page_workers = min(5, len(urls))  # Limit concurrent page workers

@@ -1,0 +1,2 @@
+# Minimal requirements for deployment testing
+flask==2.3.3

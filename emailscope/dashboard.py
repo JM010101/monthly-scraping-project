@@ -374,6 +374,7 @@ class EmailScopeDashboard:
                 self._add_log(f"[WARNING] FREE TIER: Process will timeout after 30 seconds")
                 self._add_log(f"[INFO] BALANCED settings: Max pages: {self.crawler.max_pages}, Delay: {self.crawler.delay}s")
                 self._add_log(f"[INFO] Bypassing robots.txt for free tier (needed for results)")
+                self._add_log(f"[INFO] Using mock DNS verification for free tier (cloud DNS issues)")
                 self._add_log(f"[INFO] Timeout protection enabled - will stop at 25 seconds")
             
             # Add domain to database

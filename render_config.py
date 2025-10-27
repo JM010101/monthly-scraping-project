@@ -67,8 +67,8 @@ def get_free_render_config():
             'rate_limit': 2.5,      # Moderate rate (2.5s vs 5s)
             
             # Email verification settings
-            'verification_timeout': 5,  # Moderate DNS timeout (5s vs 3s)
-            'mock_dns': False,          # Real DNS checks
+            'verification_timeout': 10,  # Longer DNS timeout for cloud (10s vs 5s)
+            'mock_dns': True,           # Skip DNS checks for free tier (needed for results)
             
             # Process management
             'max_workers': 1,       # Single worker
